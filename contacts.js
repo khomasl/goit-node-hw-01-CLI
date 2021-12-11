@@ -8,9 +8,10 @@ const readContent = async () => {
     'utf8',
   )
   try {
-    return await JSON.parse(content)
+    return JSON.parse(content)
   } catch (err) {
-    console.log(process.exit(1))
+    console.error(err.message)
+    process.exit(1)
   }
 }
 
@@ -32,11 +33,10 @@ const getContactById = async (contactId) => {
 
 const removeContact = async (contactId) => {
   const contacts = await readContent()
-  const id = contacts.indexOf(
-    contacts.find((contact) => contact.id === contactId),
-  )
+  const id = contacts.findIndex((contact) => contact.id === contactId)
+  if (id === -1) return
   const contact = contacts.splice(id, 1)
-  writeContent(contacts)
+  await writeContent(contacts)
   return contact
 }
 
@@ -44,7 +44,7 @@ const addContact = async (name, email, phone) => {
   const contacts = await readContent()
   const newContact = { name, email, phone, id: crypto.randomUUID() }
   contacts.push(newContact)
-  writeContent(contacts)
+  await writeContent(contacts)
   return newContact
 }
 
